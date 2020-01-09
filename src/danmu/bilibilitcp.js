@@ -38,7 +38,7 @@
 
             this.setMaxListeners(15);
 
-            this.host = wsUri.host;
+            this.host = wsUri.host();
             this.port = wsUri.port;
 
             this.roomid = roomid || 0;
@@ -135,6 +135,7 @@
         onClose() {
             this.reset();
             if (this.closed_by_user === false) {
+                this.host = wsUri.host(this.host);
                 this.run();
             } else {
                 this.emit('close');
@@ -146,7 +147,6 @@
          * @param   {Buffer}    buffer  - for Network I/O
          */
         onData(buffer) {
-            this.lastRead = +new Date();
             this.buffer = Buffer.concat([ this.buffer, buffer ]);
             if (this.totalLength <= 0 && this.buffer.length >= 4)
                 this.totalLength = this.buffer.readUInt32BE(0);
@@ -201,6 +201,7 @@
                 case 3:
                     const popularity = buffer.readUInt32BE(headerLength);
                     this.onPopularity(popularity);
+                    this.lastRead = new Date();
                     break;
                 case 5:
                     jsonStr = buffer.toString('utf8', headerLength, totalLength);
