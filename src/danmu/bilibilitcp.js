@@ -110,9 +110,10 @@
         onConnect() {
             this.socket && this.socket.write(this.handshake);
             this.healthCheck = setInterval(() => {
-                if (+new Date() - this.lastRead > 35 * 1000)
+                if (new Date() - this.lastRead > 35000) {
                     this.close(false);
-            }, 45 * 1000);  // 每45秒检查读取状态 如果没读取到任何信息即重连
+                }
+            }, 5 * 1000);
         }
 
         onError(error) {
@@ -645,9 +646,6 @@
             if (result !== null) {
                 ++this.newAnchorCount;
             }
-            if (this.toFixed()) {
-                this.close();
-            }
             return result;
         }
 
@@ -655,9 +653,6 @@
             const result = super.onRaffle(msg);
             if (result !== null) {
                 ++this.newGiftCount;
-            }
-            if (this.toFixed()) {
-                this.close();
             }
             return result;
         }
@@ -667,9 +662,6 @@
             if (result !== null) {
                 ++this.newGiftCount;
             }
-            if (this.toFixed()) {
-                this.close();
-            }
             return result;
         }
 
@@ -677,9 +669,6 @@
             const result = super.onGuard(msg);
             if (result !== null) {
                 ++this.newGuardCount;
-            }
-            if (this.toFixed()) {
-                this.close();
             }
             return result;
         }
