@@ -47,7 +47,7 @@
             // 更新网络较好IP列表
             let minloss = Math.min(...this.lastloss);
             // 掉线率过高
-            if (minloss > 100){
+            if (minloss > 80){
                 console.log('网络故障--最小loss:'+minloss);
                 // this.goodip = this.hosts.slice(); // 平均分配IP，或者可以选择暂停一段时间
                 process.exit(1);
