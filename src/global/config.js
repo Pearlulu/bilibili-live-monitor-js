@@ -14,7 +14,7 @@
             }
             // 记录掉线IP
             if (current && current != this.hostname) {
-                console.log('掉线'+current);
+                // console.log('掉线'+current);
                 this.loss[this.hosts.indexOf(current)]++;
             }
             // 记录请求次数，动态更新掉线统计
@@ -48,12 +48,13 @@
             let minloss = Math.min(...this.lastloss);
             // 掉线率过高
             if (minloss > 100){
-                console.log('网络极差--最小loss:'+minloss);
-                this.goodip = this.hosts.slice(); // 平均分配IP，或者可以选择暂停一段时间
+                console.log('网络故障--最小loss:'+minloss);
+                // this.goodip = this.hosts.slice(); // 平均分配IP，或者可以选择暂停一段时间
+                process.exit(1);
             } else {
                 let goodip = [];
                 for (let [i,v] of this.lastloss.entries()){
-                    if (v-minloss <= 1) { // 数字越大得到的好IP越多，连接数越平均
+                    if (v-minloss <= 5) { // 数字越大得到的好IP越多，连接数越平均
                         goodip.push(this.hosts[i]);
                     }
                 }
