@@ -319,6 +319,12 @@
                 case 'ROOM_CHANGE':
                     this.onRoomChange(msg);
                     break;
+                case 'PREPARING':
+                    this.onPreparing(msg);
+                    break;
+                case 'LIVE':
+                    this.onLive(msg);
+                    break;
                 default:
                     break;
             }
@@ -498,6 +504,9 @@
         onPreparing(msg) {
         }
 
+        onLive(msg) {
+        }
+
         onRoomChange(msg) {
         }
 
@@ -604,6 +613,7 @@
             this.newGuardCount = 0;
             this.newGiftCount = 0;
             this._toFixed = false;
+            this.canClose = false;
         }
 
         run() {
@@ -674,6 +684,14 @@
             return result;
         }
 
+        onPreparing(msg) {
+            this.canClose = true;
+        }
+
+        onLive(msg) {
+            this.canClose = false;
+        }
+
         /**
          * If popularity renders too low for 10 heartbeats (~5 min)
          *      - Check if streaming, if not then:
@@ -687,8 +705,17 @@
 
             if (popularity <= 1) {
                 ++this.offTimes;
-                if (this.offTimes > 10) {
+                if (this.canClose === true) {
+                    this.close();
+                }
+                else if (this.offTimes > 10) {
 
+                    if (this.peak_popularity > 50000) {
+                        this._toFixed = true;
+                    }
+                    this.close();
+
+                    /** this will cause 412 status code, uncomment this at your own risk
                     Bilibili.isLive(this.roomid).then(streaming => {
 
                         if (streaming === true) {
@@ -696,14 +723,17 @@
                             return null;
                         }
 
-                        if (this.peak_popularity > 50000) {
-                            this._toFixed = true;
-                        }
                         this.close();
+                    }).catch(error => {
+                        if (error.status !== 412) {
+                            cprint(`isLive - ${error.message}`, colors.red);
+                        }
                     });
+                    // */
                 }
             } else {
                 this.offTimes = 0;
+                this.canClose = false;
             }
 
             return result;
